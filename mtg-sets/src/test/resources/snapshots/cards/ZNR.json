@@ -710,6 +710,96 @@
     ]
 }
 
+// Kabira Takedown
+{
+    "name": "Kabira Takedown",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Kabira Takedown deals damage equal to the number of creatures you control to target creature or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "creature"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "target creature or planeswalker"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "target creature or planeswalker"
+            }
+        ]
+    },
+    "backFace": {
+        "name": "Kabira Plateau",
+        "manaCost": "",
+        "typeLine": "Land",
+        "oracleText": "This land enters tapped.\n{T}: Add {W}.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "ability_1",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "WHITE"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                }
+            ],
+            "replacementEffects": [
+                "EntersTapped"
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "19",
+            "rarity": "UNCOMMON",
+            "artist": "Randy Vargas",
+            "flavorText": "\"Wise adventurers—and clever beasties—stick to the higher ground.\"\n—Kreq of Sunder Bay",
+            "imageUri": "https://cards.scryfall.io/normal/back/3/6/366e9845-019d-47cc-adb8-8fbbaad35b6d.jpg?1783929423"
+        },
+        "colorIdentityOverride": [
+            "WHITE"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Vargas",
+        "flavorText": "\"Down below's where things go to die.\"\n—Kreq of Sunder Bay",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/6/366e9845-019d-47cc-adb8-8fbbaad35b6d.jpg?1783929423",
+        "rulings": [
+            {
+                "date": "2020-09-25",
+                "text": "To determine whether it is legal to play a modal double-faced card, consider only the characteristics of the face you're playing and ignore the other face's characteristics."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "If an effect allows you to play a specific modal double-faced card, you may cast it as a spell or play it as a land, as determined by which face you choose to play. If an effect allows you to cast (rather than \"play\") a specific modal double-faced card, you can't play it as a land."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "The mana value of a modal double-faced card is based on the characteristics of the face that's being considered. On the stack and battlefield, consider whichever face is up. In all other zones, consider only the front face. This is different than how the mana value of a transforming double-faced card is determined."
+            },
+            {
+                "date": "2020-09-25",
+                "text": "A modal double-faced card can't be transformed or be put onto the battlefield transformed. Ignore any instruction to transform a modal double-faced card or to put one onto the battlefield transformed."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ],
+    "layout": "MODAL_DFC"
+}
+
 // Luminarch Aspirant
 {
     "name": "Luminarch Aspirant",

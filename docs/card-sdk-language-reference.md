@@ -285,7 +285,7 @@ carries the other side for the hover preview's flip toggle.
     (unlike CR 712.8e for nonmodal DFCs, where it stays the front's). The Marvel Super Heroes hero cycle —
     Jennifer Walters // The Sensational She-Hulk, Bruce Banner // The Incredible Hulk, King T'Challa, Tony Stark,
     Monica Rambeau.
-  - **Land back** — a full `CardDefinition` in `backFace`, built with
+  - **Land back, land front** — a full `CardDefinition` in `backFace`, built with
     `CardDefinition.modalDoubleFacedLand(front, back)`. Neither face is ever *cast*: CR 712.12 makes this a
     **play-a-land** choice — *"A player playing a modal double-faced card as a land chooses one of its faces
     that's a land before putting it onto the battlefield. It enters the battlefield with that face up."* So the
@@ -295,6 +295,14 @@ carries the other side for the hover preview's flip toggle.
     over (CR 712.9 excludes modal DFCs from transforming); off the battlefield the card is its front face again
     (CR 712.8a). The ten-card Pathway cycle, split across Zendikar Rising (six) and Kaldheim (four) —
     Riverglide Pathway // Lavaglide Pathway, Hengegate Pathway // Mistgate Pathway, and the rest.
+  - **Land back, spell front** — a full `CardDefinition` in `backFace`, built with
+    `CardDefinition.modalDoubleFacedLandBack(front, back)`. The asymmetric case: the front is *cast* like any
+    instant/sorcery (CR 712.11b, and it is the card's primary characteristics off the battlefield anyway, so it
+    needs no special handling), while the back is *played as a land* (CR 712.12) — so one card offers **one cast
+    and one land play**, and `PlayLand.asBackFace = true` takes the land. `ModalDfcCasts` routes the two apart off
+    the back's type line: `castFace` excludes a land back, `landFace` claims it. The front carries its own mana
+    cost; the back carries none and no color indicator. The Zendikar Rising spell // land cycle —
+    Kabira Takedown // Kabira Plateau, Emeria's Call // Emeria, Shattered Skyclave, and the rest.
 - `PREPARE` — primary characteristics are the creature face, `cardFaces[0]` is the **prepare spell** (an
   instant/sorcery) (Secrets of Strixhaven). The card is only ever cast as the creature; the prepare spell is never
   cast from hand. A creature that carries `Keyword.PREPARED` ("This creature enters prepared") becomes prepared on
@@ -12888,6 +12896,15 @@ Card authors rarely reference these directly; they are created/updated by the ma
   **mana value**, which is the only characteristic the CR treats differently for the two layouts — see the entry
   below. Timing comes off the face being cast, not the front (CR 712.11c), so a permanent back is sorcery-speed
   unless *it* has flash. First users: the MSH hero cycle.
+- **Modal DFC, land back under a spell front (CR 712.12)** — `layout = MODAL_DFC` + a full land `backFace`, via
+  `CardDefinition.modalDoubleFacedLandBack(front, back)`. Nothing new in the engine: `PlayLandEnumerator` already
+  asks `ModalDfcCasts.landFace` for a *second* land play on every double-faced card in hand (it reaches this for
+  any card, gated on `CardComponent.isDoubleFaced`, not just lands), and `PlayLandHandler` swaps to the back face
+  before it reads anything off the permanent — so the entry event's name, the entry counters, the `EntersTapped`
+  branch and the as-enters replacements all read the *played* face's definition (CR 712.8f). The front face needs
+  no wiring at all: it is the card's primary characteristics in hand (CR 712.8a), so it enumerates and casts as an
+  ordinary instant. `ModalDfcCasts.castFace` deliberately excludes a land back so the pair is never offered as a
+  cast. First user: Kabira Takedown // Kabira Plateau.
 - **Mana value across a transform (CR 712.8c / 712.8e / 712.8f)** — the one characteristic where nonmodal and modal
   DFCs diverge, so it is the one thing the shared face-swap machinery has to fork on. A **nonmodal** DFC computes
   its mana value from the **front** face's mana cost while the back is up — on the stack (CR 712.8c, a disturb

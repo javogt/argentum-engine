@@ -832,6 +832,60 @@ data class CardDefinition(
         }
 
         /**
+         * Creates a **modal double-faced card whose front is a spell and whose back is a land** —
+         * the Zendikar Rising spell // land cycle (Kabira Takedown // Kabira Plateau, Emeria's Call
+         * // Emeria, Shattered Skyclave, and the rest).
+         *
+         * Two mutually exclusive plays off one card, and the two routes are different *kinds* of
+         * action, which is what separates this from both sibling factories:
+         *
+         *  - **Cast the front.** CR 712.11b — the caster chooses a face before putting the card on
+         *    the stack, and CR 712.11c evaluates only that face for legality. The front is the
+         *    card's primary characteristics off the battlefield (CR 712.8a), so this needs no
+         *    special handling at all: it is an ordinary instant/sorcery cast.
+         *  - **Play the back as a land.** CR 712.12 — a modal DFC played as a land has its land
+         *    face chosen before it enters, and it enters with that face up. Never cast, so the back
+         *    carries no mana cost, exactly as in [modalDoubleFacedLand].
+         *
+         * That asymmetry rules out [modalDoubleFacedPermanent] (which requires a castable back with
+         * its own mana cost) and [modalDoubleFacedLand] (which requires *both* faces to be lands).
+         * The engine already distinguishes the two routes off the back face's type line —
+         * `ModalDfcCasts.castFace` deliberately excludes a land back, and `ModalDfcCasts.landFace`
+         * claims it — so this factory only has to assert the shape.
+         *
+         * Once the land is on the battlefield it has only that face's characteristics (CR 712.8f)
+         * and can never turn over; CR 712.9 excludes modal DFCs from transforming. And per CR 712.8f
+         * a card in any other zone is considered by its front face alone, so this card is an instant
+         * in hand, in the graveyard, and in the library — it is a land only on the battlefield.
+         *
+         * @param frontFace The front face (must be a nonpermanent spell — instant or sorcery — with
+         *   its own mana cost).
+         * @param backFace The back face (must be a land with no mana cost).
+         */
+        fun modalDoubleFacedLandBack(
+            frontFace: CardDefinition,
+            backFace: CardDefinition
+        ): CardDefinition {
+            require(!frontFace.isPermanent) {
+                "Modal DFC front face '${frontFace.name}' must be a spell here; a permanent front " +
+                    "belongs on modalDoubleFacedPermanent or modalDoubleFacedLand"
+            }
+            require(!frontFace.manaCost.isEmpty()) {
+                "Modal DFC spell front face '${frontFace.name}' must have its own mana cost — it is cast"
+            }
+            require(backFace.typeLine.isLand) {
+                "Modal double-faced land back '${backFace.name}' must be a land (CR 712.12)"
+            }
+            require(backFace.manaCost.isEmpty()) {
+                "Modal double-faced land back '${backFace.name}' is played, not cast — it takes no mana cost"
+            }
+            require(backFace.colorIndicator == null) {
+                "Modal double-faced land back '${backFace.name}' takes no color indicator; a land face is colorless"
+            }
+            return frontFace.copy(backFace = backFace, layout = CardLayout.MODAL_DFC)
+        }
+
+        /**
          * Creates a planeswalker card.
          * @param name Card name
          * @param manaCost Mana cost
